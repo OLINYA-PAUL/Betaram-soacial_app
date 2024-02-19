@@ -8,9 +8,20 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Loader from "@/components/shared/Loader";
+import { useToast } from "@/components/ui/use-toast";
+import {useUserContext} from '../../context/AuthContext'
+import {useNavigate} from "react-router-dom"
+
+import {
+  useSignInAcccount,
+} from "../../lib/react-query/queriesAndMutations";
 
 const SigninForm = () => {
 
+  const { mutateAsync: signInAccount } = useSignInAcccount();
+  const {checkAuthenticatedUser} =  useUserContext()
+  const { toast } = useToast();
+  const navigate =useNavigate()
 
   const form = useForm<z.infer<typeof SigninValidation>>({
     resolver: zodResolver(SigninValidation),
@@ -22,7 +33,27 @@ const SigninForm = () => {
 let isLoading = false as boolean
   const handleSignin = async (user: z.infer<typeof SigninValidation>) => {
     isLoading = true
-  console.log(user)
+    const session = await signInAccount({
+      email: user?.email,
+      password: user?.password,
+    });
+
+    if (!session)
+      return toast({
+        title: "Something Went Wrong!",
+        description: "Sign in fall! Try again later bro!",
+      });  
+
+      const isLogin = checkAuthenticatedUser();
+
+      if(isLogin){
+        form.reset();
+        navigate('/')
+        return toast({
+           description: "Login sucessfull",
+        });  
+      } else return toast({ description: "Login faill pls try again"})
+
    
 
   };

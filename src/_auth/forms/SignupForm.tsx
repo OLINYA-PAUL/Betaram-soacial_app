@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/components/ui/use-toast";
 import {useNavigate, Link} from 'react-router-dom'
+import {useUserContext} from '../../context/AuthContext'
 
 import { SignupValidation,  } from "../../lib/validation";
 import {
@@ -20,7 +21,7 @@ import {
   useCreateUserAccount,
   useSignInAcccount,
 } from "../../lib/react-query/queriesAndMutations";
-import {useUserContext} from '../../context/AuthContext'
+
 
 const SignupForm = () => {
 
@@ -46,6 +47,7 @@ const SignupForm = () => {
   // Handler
   const handleSignup = async (user: z.infer<typeof SignupValidation>) => {
     const newUser = await createUserAccount(user);
+    
 
     if (!newUser)
       return toast({
